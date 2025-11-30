@@ -1,0 +1,55 @@
+================================================================================
+                    ✅ FIX: ERREUR VERCEL RÉSOLUE
+================================================================================
+
+ERREUR REÇUE:
+"Error: Function Runtimes must have a valid version, for example `now-php@1.0.0`."
+
+CAUSE:
+La configuration "functions" dans vercel.json n'était pas correcte.
+
+SOLUTION APPLIQUÉE:
+J'ai simplifié vercel.json pour laisser Vercel gérer automatiquement Express.js
+
+================================================================================
+                    📝 VERCEL.JSON CORRIGÉ
+================================================================================
+
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "express",
+  "outputDirectory": "dist"
+}
+
+================================================================================
+                    🚀 PROCHAINES ÉTAPES
+================================================================================
+
+1. Le fichier vercel.json a été corrigé automatiquement ✅
+
+2. Va à Vercel: https://vercel.com/dashboard
+
+3. Clique: anaros-prod → Deployments
+
+4. Clique: ... (3 points) du dernier déploiement
+
+5. Clique: Redeploy
+
+6. Attends: ~3-5 min
+
+7. Vérifie que le déploiement réussit (Status: Ready)
+
+8. Teste: https://anaros-prod.vercel.app
+
+================================================================================
+                    ✅ CHECKLIST
+================================================================================
+
+- [x] vercel.json corrigé
+- [ ] Redéploiement lancé
+- [ ] Déploiement réussi
+- [ ] Application testée
+
+================================================================================

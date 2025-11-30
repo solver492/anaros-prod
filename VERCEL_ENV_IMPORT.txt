@@ -1,0 +1,64 @@
+================================================================================
+                    📋 FICHIER .ENV POUR VERCEL
+================================================================================
+
+COPIE ET COLLE DIRECTEMENT DANS VERCEL:
+
+NODE_ENV=production
+DATABASE_URL=postgresql://postgres:QyHamMt45D5CviT6@db.ysaysbafnzylzvwzvkdj.supabase.co:5432/postgres
+SESSION_SECRET=your-secret-key-change-this-in-production
+PORT=3000
+
+================================================================================
+                    📝 COMMENT IMPORTER DANS VERCEL
+================================================================================
+
+OPTION 1: Importer via Fichier (Recommandé)
+─────────────────────────────────────────────
+
+1. Ouvre: https://vercel.com/dashboard
+2. Clique: anaros-prod → Settings
+3. Clique: Environment Variables
+4. Clique: "Import .env"
+5. Ouvre le fichier: .env.production
+6. Clique: "Upload"
+7. Clique: "Save"
+
+OPTION 2: Ajouter Manuellement
+──────────────────────────────
+
+1. Ouvre: https://vercel.com/dashboard
+2. Clique: anaros-prod → Settings
+3. Clique: Environment Variables
+4. Pour chaque ligne ci-dessus:
+   - Clique: "+ Add New"
+   - Remplis: Name et Value
+   - Clique: "Save"
+
+================================================================================
+                    ✅ VARIABLES À AJOUTER
+================================================================================
+
+1. NODE_ENV
+   Value: production
+
+2. DATABASE_URL
+   Value: postgresql://postgres:QyHamMt45D5CviT6@db.ysaysbafnzylzvwzvkdj.supabase.co:5432/postgres
+
+3. SESSION_SECRET
+   Value: your-secret-key-change-this-in-production
+
+4. PORT
+   Value: 3000
+
+================================================================================
+                    🚀 APRÈS L'IMPORT
+================================================================================
+
+1. Clique: Deployments
+2. Clique: ... (3 points)
+3. Clique: Redeploy
+4. Attends: ~3-5 min
+5. Teste: https://anaros-prod.vercel.app
+
+================================================================================

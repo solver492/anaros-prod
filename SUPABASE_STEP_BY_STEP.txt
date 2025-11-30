@@ -1,0 +1,217 @@
+================================================================================
+                  CONFIGURATION SUPABASE - ÉTAPE PAR ÉTAPE
+================================================================================
+
+✅ TES INFORMATIONS SUPABASE:
+   Project URL: https://ysaysbafnzylzvwzvkdj.supabase.co
+   API Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+================================================================================
+                            ÉTAPE 1: CRÉER LES TABLES
+================================================================================
+
+1. Ouvre: https://supabase.com/dashboard
+
+2. Sélectionne ton projet (widqrqty@mozmail.com's Org)
+
+3. Dans le menu de gauche, clique sur "SQL Editor"
+
+4. Clique sur le bouton "+ New Query"
+
+5. Copie et colle TOUT ce SQL:
+
+---BEGIN SQL---
+
+-- Create profiles table (users/employees)
+CREATE TABLE IF NOT EXISTS profiles (
+  id VARCHAR(36) PRIMARY KEY,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'staff',
+  color_code TEXT DEFAULT '#3B82F6',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create service categories table
+CREATE TABLE IF NOT EXISTS services_categories (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE
+);
+
+-- Create services table
+CREATE TABLE IF NOT EXISTS services (
+  id VARCHAR(36) PRIMARY KEY,
+  category_id INTEGER NOT NULL REFERENCES services_categories(id),
+  name TEXT NOT NULL,
+  price INTEGER NOT NULL,
+  duration INTEGER NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create staff skills table
+CREATE TABLE IF NOT EXISTS staff_skills (
+  profile_id VARCHAR(36) NOT NULL REFERENCES profiles(id),
+  category_id INTEGER NOT NULL REFERENCES services_categories(id),
+  PRIMARY KEY (profile_id, category_id)
+);
+
+-- Create clients table
+CREATE TABLE IF NOT EXISTS clients (
+  id VARCHAR(36) PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create appointments table
+CREATE TABLE IF NOT EXISTS appointments (
+  id VARCHAR(36) PRIMARY KEY,
+  created_at TIMESTAMP DEFAULT NOW(),
+  start_time TIMESTAMP NOT NULL,
+  end_time TIMESTAMP NOT NULL,
+  client_id VARCHAR(36) NOT NULL REFERENCES clients(id),
+  staff_id VARCHAR(36) NOT NULL REFERENCES profiles(id),
+  service_id VARCHAR(36) NOT NULL REFERENCES services(id),
+  status TEXT NOT NULL DEFAULT 'pending'
+);
+
+-- Create users table (legacy)
+CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR(36) PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON profiles(email);
+CREATE INDEX IF NOT EXISTS idx_services_category_id ON services(category_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_client_id ON appointments(client_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_staff_id ON appointments(staff_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_service_id ON appointments(service_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_start_time ON appointments(start_time);
+
+---END SQL---
+
+6. Clique sur le bouton "Run" (ou Ctrl+Enter)
+
+7. Attends que ça se termine (tu verras "Query successful" ✅)
+
+================================================================================
+                        ÉTAPE 2: VÉRIFIER LES TABLES
+================================================================================
+
+1. Dans le menu de gauche, clique sur "Table Editor"
+
+2. Vérifie que ces tables existent:
+   ✅ profiles
+   ✅ services_categories
+   ✅ services
+   ✅ staff_skills
+   ✅ clients
+   ✅ appointments
+   ✅ users
+
+3. Clique sur chaque table pour vérifier les colonnes
+
+================================================================================
+                    ÉTAPE 3: OBTENIR LA DATABASE_URL
+================================================================================
+
+1. Dans le menu de gauche, clique sur "Settings" (en bas)
+
+2. Clique sur "Database"
+
+3. Cherche la section "Connection String"
+
+4. Sélectionne "URI" (pas "Connection Pooler")
+
+5. Copie l'URL complète (elle ressemble à):
+   postgresql://postgres.ysaysbafnzylzvwzvkdj:PASSWORD@db.ysaysbafnzylzvwzvkdj.supabase.co:5432/postgres
+
+6. Garde-la de côté, tu en auras besoin pour Vercel
+
+================================================================================
+                    ÉTAPE 4: AJOUTER À VERCEL
+================================================================================
+
+1. Ouvre: https://vercel.com/dashboard
+
+2. Clique sur ton projet "anaros-prod"
+
+3. Clique sur "Settings" (en haut)
+
+4. Clique sur "Environment Variables" (dans le menu de gauche)
+
+5. Ajoute une nouvelle variable:
+   Name: DATABASE_URL
+   Value: [Colle l'URL que tu as copiée à l'étape 3]
+
+6. Clique "Save"
+
+7. Va à "Deployments"
+
+8. Clique sur les 3 points (...) du dernier déploiement
+
+9. Clique "Redeploy"
+
+10. Attends que le déploiement se termine
+
+================================================================================
+                        ÉTAPE 5: TESTER
+================================================================================
+
+1. Ouvre ton application: https://anaros-prod.vercel.app
+
+2. Essaie de te connecter
+
+3. Vérifie que le calendrier fonctionne
+
+4. Crée un rendez-vous
+
+5. Vérifie que tout fonctionne sans erreurs
+
+================================================================================
+                            RÉSUMÉ
+================================================================================
+
+✅ Créer les tables dans Supabase (SQL Editor)
+✅ Vérifier que les tables existent (Table Editor)
+✅ Obtenir la DATABASE_URL (Settings → Database)
+✅ Ajouter DATABASE_URL à Vercel (Settings → Environment Variables)
+✅ Redéployer sur Vercel (Deployments → Redeploy)
+✅ Tester l'application
+
+================================================================================
+                        ERREURS COURANTES
+================================================================================
+
+❌ "relation does not exist"
+   → Les tables n'ont pas été créées
+   → Vérifiez que le SQL a été exécuté correctement
+
+❌ "permission denied"
+   → Vérifiez que vous utilisez la bonne clé API
+   → Assurez-vous que le rôle a les permissions
+
+❌ "connection refused"
+   → Vérifiez la DATABASE_URL
+   → Assurez-vous que Supabase est accessible
+
+❌ "Build failed on Vercel"
+   → Vérifiez les logs Vercel
+   → Assurez-vous que DATABASE_URL est correcte
+
+================================================================================
+                            SUPPORT
+================================================================================
+
+Besoin d'aide?
+- Supabase Docs: https://supabase.com/docs
+- Vercel Docs: https://vercel.com/docs
+- PostgreSQL Docs: https://www.postgresql.org/docs/
+
+================================================================================

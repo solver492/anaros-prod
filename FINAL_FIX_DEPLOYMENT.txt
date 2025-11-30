@@ -1,0 +1,100 @@
+================================================================================
+                    ✅ FINAL FIX - DEPLOYMENT ERROR
+================================================================================
+
+PROBLEM: "Error: Function Runtimes must have a valid version"
+
+SOLUTION: The vercel.json has been fixed. Now you need to:
+
+================================================================================
+                    🚀 OPTION 1: MANUAL REDEPLOY (FASTEST)
+================================================================================
+
+1. Open: https://vercel.com/dashboard
+
+2. Click: anaros-prod
+
+3. Click: Settings → Git
+
+4. Under "Deployments", click: "Redeploy"
+
+5. Select the latest commit
+
+6. Click: "Redeploy"
+
+7. Wait 3-5 minutes for the build to complete
+
+8. Check status: Should show "Ready" ✅
+
+================================================================================
+                    🚀 OPTION 2: PUSH TO GITHUB (RECOMMENDED)
+================================================================================
+
+1. Make sure your GitHub remote is set:
+
+   git remote add origin https://github.com/solver492/anaros-prod.git
+
+2. Push the fixed vercel.json:
+
+   git push origin main
+
+3. Vercel will automatically redeploy
+
+4. Wait 3-5 minutes
+
+5. Check: https://vercel.com/dashboard/anaros-prod/deployments
+
+================================================================================
+                    📋 VERCEL.JSON - FIXED VERSION
+================================================================================
+
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "express"
+}
+
+This is the correct minimal configuration for Express.js on Vercel.
+
+================================================================================
+                    ✅ AFTER REDEPLOY
+================================================================================
+
+1. Check deployment status: Should be "Ready" ✅
+
+2. If still error, try this alternative:
+
+   {
+     "buildCommand": "npm run build",
+     "outputDirectory": "dist"
+   }
+
+3. If error persists, delete and recreate the project
+
+================================================================================
+                    🧪 TEST YOUR APPLICATION
+================================================================================
+
+Once deployment is successful:
+
+1. Open: https://anaros-prod.vercel.app
+
+2. Test:
+   ✅ Page loads
+   ✅ Login works
+   ✅ Calendar displays
+   ✅ No console errors (F12)
+
+================================================================================
+                    ⚠️ TROUBLESHOOTING
+================================================================================
+
+If you still see the error:
+
+1. Check the build logs in Vercel
+2. Look for any other configuration issues
+3. Try deleting vercel.json and letting Vercel auto-detect
+
+Alternative: Remove vercel.json completely and let Vercel use defaults
+
+================================================================================

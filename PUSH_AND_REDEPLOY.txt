@@ -1,0 +1,70 @@
+================================================================================
+                    🚀 PUSH CHANGES AND REDEPLOY
+================================================================================
+
+⚠️ IMPORTANT: You must push the fixed vercel.json to GitHub first!
+
+================================================================================
+                    📝 STEP 1: PUSH TO GITHUB
+================================================================================
+
+Run these commands in PowerShell/Terminal:
+
+cd c:\Users\d3drone\Desktop\AnarosERP
+
+git add vercel.json
+git commit -m "Fix: simplify vercel.json configuration"
+git push origin main
+
+================================================================================
+                    🔄 STEP 2: VERCEL WILL AUTO-REDEPLOY
+================================================================================
+
+After you push to GitHub:
+1. Vercel will automatically detect the change
+2. A new deployment will start automatically
+3. Wait 3-5 minutes for the build to complete
+
+================================================================================
+                    ✅ STEP 3: MONITOR DEPLOYMENT
+================================================================================
+
+1. Open: https://vercel.com/dashboard
+2. Click: anaros-prod
+3. Click: Deployments
+4. Watch the status:
+   - "Building..." 
+   - "Building complete"
+   - "Ready" ✅
+
+================================================================================
+                    🧪 STEP 4: TEST
+================================================================================
+
+Once status is "Ready":
+1. Click: "Visit" button
+2. Or open: https://anaros-prod.vercel.app
+3. Test:
+   ✅ Login page loads
+   ✅ Calendar displays
+   ✅ No errors in console (F12)
+
+================================================================================
+                    ⚠️ IF ERROR PERSISTS
+================================================================================
+
+If you still see the error:
+
+1. Delete the deployment in Vercel
+2. Go to: https://vercel.com/dashboard/anaros-prod/settings/git
+3. Disconnect and reconnect GitHub
+4. Redeploy manually
+
+Or try this alternative vercel.json:
+
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist"
+}
+
+================================================================================
