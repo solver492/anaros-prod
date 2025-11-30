@@ -8,7 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
-import Calendar from "@/pages/Calendar";
+import CalendarNew from "@/pages/CalendarNew";
 import Clients from "@/pages/Clients";
 import Services from "@/pages/Services";
 import Users from "@/pages/Users";
@@ -134,7 +134,7 @@ function Router() {
       </Route>
       <Route path="/calendar">
         <ReceptionRoute>
-          <Calendar />
+          <CalendarNew />
         </ReceptionRoute>
       </Route>
       <Route path="/clients">
