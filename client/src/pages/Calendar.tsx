@@ -599,7 +599,6 @@ export default function Calendar() {
     null
   );
   const [showAppointmentDetails, setShowAppointmentDetails] = useState(false);
-  const [filteredStaffIds, setFilteredStaffIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   const { data: staff = [], isLoading: staffLoading } = useQuery<Profile[]>({
@@ -638,25 +637,12 @@ export default function Calendar() {
 
   const isLoading = staffLoading || clientsLoading || servicesLoading || appointmentsLoading;
 
-  // Get filtered staff or all if no filter
-  const displayedStaff = filteredStaffIds.size === 0 ? staff : staff.filter(s => filteredStaffIds.has(s.id));
-
   // Transform staff to calendar resources
-  const resources: CalendarResource[] = displayedStaff.map((s) => ({
+  const resources: CalendarResource[] = staff.map((s) => ({
     id: s.id,
     title: `${s.firstName} ${s.lastName}`,
     colorCode: s.colorCode || '#3B82F6',
   }));
-
-  const toggleStaffFilter = (staffId: string) => {
-    const newFiltered = new Set(filteredStaffIds);
-    if (newFiltered.has(staffId)) {
-      newFiltered.delete(staffId);
-    } else {
-      newFiltered.add(staffId);
-    }
-    setFilteredStaffIds(newFiltered);
-  };
 
   // Transform appointments to calendar events
   const events: CalendarEvent[] = appointments
@@ -703,35 +689,16 @@ export default function Calendar() {
   return (
     <Layout title="Agenda">
       <div className="p-4 lg:p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <p className="text-muted-foreground">
-              {displayedStaff.length} employé(e)s • {appointments.filter((a) => a.status !== 'cancelled').length} RDV
+              {staff.length} employé(e)s • {appointments.filter((a) => a.status !== 'cancelled').length} RDV aujourd'hui
             </p>
           </div>
           <Button onClick={() => setShowNewAppointment(true)} data-testid="button-new-appointment">
             <Plus className="mr-2 h-4 w-4" />
             Nouveau RDV
           </Button>
-        </div>
-
-        {/* Staff Filter */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          <span className="text-sm font-medium text-muted-foreground self-center">Filtrer par employé(e):</span>
-          <div className="flex flex-wrap gap-2">
-            {staff.map((member) => (
-              <Badge
-                key={member.id}
-                variant={filteredStaffIds.has(member.id) ? 'default' : 'outline'}
-                className="cursor-pointer hover-elevate"
-                onClick={() => toggleStaffFilter(member.id)}
-                data-testid={`badge-filter-staff-${member.id}`}
-                style={filteredStaffIds.has(member.id) ? { backgroundColor: member.colorCode } : undefined}
-              >
-                {member.firstName} {member.lastName}
-              </Badge>
-            ))}
-          </div>
         </div>
 
         <Card className="border-card-border overflow-hidden">
