@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
-import { Plus, User, Clock, Scissors, Loader2, X, Check, XCircle, Phone } from 'lucide-react';
+import { Plus, User, Clock, Scissors, Loader2, X, Check, XCircle, Phone, ChevronDown } from 'lucide-react';
 import type { Profile, Client, ServiceWithCategory, AppointmentWithDetails, InsertAppointment } from '@shared/schema';
 
 // Setup date-fns localizer for react-big-calendar
@@ -416,6 +416,7 @@ export default function CalendarPage() {
   const [view, setView] = useState<'month' | 'week' | 'day' | 'agenda'>('week');
   const [selectedStaffIds, setSelectedStaffIds] = useState<Set<string>>(new Set());
   const [searchStaff, setSearchStaff] = useState('');
+  const [showStaffDropdown, setShowStaffDropdown] = useState(false);
   const { toast } = useToast();
 
   const { data: staff = [], isLoading: staffLoading } = useQuery<Profile[]>({
@@ -544,55 +545,87 @@ export default function CalendarPage() {
             <p className="text-muted-foreground text-sm mb-3">
               {activeStaffIds.size}/{staff.length} employé(e)s • {appointments.filter((a) => a.status !== 'cancelled' && activeStaffIds.has(a.staffId)).length} RDV
             </p>
-            <Input
-              placeholder="Rechercher un(e) employé(e)..."
-              value={searchStaff}
-              onChange={(e) => setSearchStaff(e.target.value)}
-              className="max-w-sm"
-            />
+            {/* Staff Dropdown */}
+            <div className="relative inline-block">
+              <Button
+                onClick={() => setShowStaffDropdown(!showStaffDropdown)}
+                variant="outline"
+                className="gap-2"
+              >
+                <User className="h-4 w-4" />
+                Liste des employé(e)s
+                <ChevronDown className={`h-4 w-4 transition-transform ${showStaffDropdown ? 'rotate-180' : ''}`} />
+              </Button>
+
+              {/* Dropdown Menu */}
+              {showStaffDropdown && (
+                <div className="absolute top-full left-0 mt-2 bg-background border border-border rounded-lg shadow-lg z-50 min-w-64">
+                  {/* Search Input */}
+                  <div className="p-3 border-b border-border">
+                    <Input
+                      placeholder="Rechercher un(e) employé(e)..."
+                      value={searchStaff}
+                      onChange={(e) => setSearchStaff(e.target.value)}
+                      className="h-8"
+                      autoFocus
+                    />
+                  </div>
+
+                  {/* Select All Button */}
+                  <div className="p-2 border-b border-border">
+                    <Button
+                      variant={filteredStaff.every(s => activeStaffIds.has(s.id)) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={toggleAllStaff}
+                      className="w-full font-medium"
+                    >
+                      {filteredStaff.every(s => activeStaffIds.has(s.id)) ? 'Désélectionner tout' : 'Sélectionner tout'}
+                    </Button>
+                  </div>
+
+                  {/* Staff List */}
+                  <div className="max-h-64 overflow-y-auto">
+                    {filteredStaff.length === 0 ? (
+                      <div className="p-4 text-center text-muted-foreground text-sm">
+                        Aucun(e) employé(e) trouvé(e)
+                      </div>
+                    ) : (
+                      filteredStaff.map((s) => {
+                        const isSelected = activeStaffIds.has(s.id);
+                        return (
+                          <button
+                            key={s.id}
+                            onClick={() => toggleStaff(s.id)}
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all hover:bg-muted ${
+                              isSelected ? 'bg-primary/10' : ''
+                            }`}
+                          >
+                            <div
+                              className="w-3 h-3 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: s.colorCode || '#3B82F6' }}
+                            />
+                            <span className={`text-sm font-medium flex-1 text-left ${
+                              isSelected ? 'text-primary font-semibold' : 'text-foreground'
+                            }`}>
+                              {s.firstName} {s.lastName}
+                            </span>
+                            {isSelected && (
+                              <Check className="h-4 w-4 text-primary" />
+                            )}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <Button onClick={() => setShowNewAppointment(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Nouveau RDV
           </Button>
         </div>
-
-        {/* Staff Filter Bar */}
-        <Card className="border-card-border mb-4 p-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              variant={filteredStaff.every(s => activeStaffIds.has(s.id)) ? 'default' : 'outline'}
-              size="sm"
-              onClick={toggleAllStaff}
-              className="font-medium"
-            >
-              {filteredStaff.every(s => activeStaffIds.has(s.id)) ? 'Tous' : 'Sélectionner tout'}
-            </Button>
-            <div className="w-px h-6 bg-border" />
-            {filteredStaff.map((s) => {
-              const isSelected = activeStaffIds.has(s.id);
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => toggleStaff(s.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
-                    isSelected
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                  }`}
-                >
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: s.colorCode || '#3B82F6' }}
-                  />
-                  <span className="text-sm font-medium">
-                    {s.firstName} {s.lastName}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </Card>
 
         <Card className="border-card-border overflow-hidden">
           <CardContent className="p-0">
