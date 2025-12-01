@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { Plus, User, Clock, Scissors, Loader2, X, Check, XCircle, Phone, ChevronDown } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Profile, Client, ServiceWithCategory, AppointmentWithDetails, InsertAppointment } from '@shared/schema';
 
 // Setup date-fns localizer for react-big-calendar
@@ -53,6 +54,7 @@ function AppointmentModal({
   clients,
   services,
   onSuccess,
+  onStaffAssigned,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,6 +63,7 @@ function AppointmentModal({
   clients: Client[];
   services: ServiceWithCategory[];
   onSuccess: () => void;
+  onStaffAssigned?: (staffId: string) => void;
 }) {
   const [step, setStep] = useState(1);
   const [selectedClient, setSelectedClient] = useState<string>('');
@@ -82,7 +85,11 @@ function AppointmentModal({
       const res = await apiRequest('POST', '/api/appointments', data);
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      // Notify parent to select the staff member who was assigned the appointment
+      if (onStaffAssigned) {
+        onStaffAssigned(variables.staffId);
+      }
       queryClient.invalidateQueries({ queryKey: ['/api/appointments'] });
       toast({ title: 'Succès', description: 'Rendez-vous créé avec succès' });
       onSuccess();
@@ -405,6 +412,7 @@ function AppointmentDetailsModal({
 }
 
 export default function CalendarPage() {
+  const { user } = useAuth();
   const [showNewAppointment, setShowNewAppointment] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{
     start: Date;
@@ -462,13 +470,19 @@ export default function CalendarPage() {
     );
   }, [staff, searchStaff]);
 
-  // Initialize selectedStaffIds with all staff if empty
+  // Initialize selectedStaffIds based on user role
   const activeStaffIds = useMemo(() => {
+    // Si l'utilisateur est staff (employé), afficher seulement ses RDV
+    if (user?.role === 'staff' && user?.id) {
+      return new Set([user.id]);
+    }
+    
+    // Si l'utilisateur est admin/superadmin/reception, afficher tous les RDV
     if (selectedStaffIds.size === 0) {
       return new Set(staff.map(s => s.id));
     }
     return selectedStaffIds;
-  }, [selectedStaffIds, staff]);
+  }, [selectedStaffIds, staff, user]);
 
   // Toggle staff selection
   const toggleStaff = (staffId: string) => {
@@ -545,7 +559,8 @@ export default function CalendarPage() {
             <p className="text-muted-foreground text-sm mb-3">
               {activeStaffIds.size}/{staff.length} employé(e)s • {appointments.filter((a) => a.status !== 'cancelled' && activeStaffIds.has(a.staffId)).length} RDV
             </p>
-            {/* Staff Dropdown */}
+            {/* Staff Dropdown - Only for admin/superadmin/reception */}
+            {user?.role !== 'staff' && (
             <div className="relative inline-block">
               <Button
                 onClick={() => setShowStaffDropdown(!showStaffDropdown)}
@@ -620,6 +635,7 @@ export default function CalendarPage() {
                 </div>
               )}
             </div>
+            )}
           </div>
           <Button onClick={() => setShowNewAppointment(true)}>
             <Plus className="mr-2 h-4 w-4" />
@@ -670,6 +686,9 @@ export default function CalendarPage() {
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: ['/api/appointments'] });
           queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
+        }}
+        onStaffAssigned={(staffId) => {
+          setSelectedStaffIds(new Set([staffId]));
         }}
       />
 

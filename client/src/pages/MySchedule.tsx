@@ -135,6 +135,10 @@ export default function MySchedule() {
 
   const { data: appointments = [], isLoading } = useQuery<AppointmentWithDetails[]>({
     queryKey: ['/api/appointments', 'staff', user?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/appointments?staff=${user?.id}`);
+      return res.json();
+    },
     enabled: !!user?.id,
   });
 
