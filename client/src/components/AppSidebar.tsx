@@ -7,6 +7,7 @@ import {
   UserCog,
   LogOut,
   CalendarDays,
+  Globe,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -66,6 +67,13 @@ export function AppSidebar() {
       icon: UserCog,
       show: isAdmin,
     },
+    {
+      title: 'Gestion du site web',
+      url: 'https://mediumseagreen-hedgehog-212144.hostingersite.com/backoffice',
+      icon: Globe,
+      show: isAdmin,
+      external: true,
+    },
   ];
 
   const visibleItems = menuItems.filter(item => item.show);
@@ -88,11 +96,11 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div 
+          <div
             className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg"
-            style={{ 
-              backgroundColor: 'hsl(var(--primary))', 
-              color: 'hsl(var(--primary-foreground))' 
+            style={{
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             A
@@ -111,15 +119,22 @@ export function AppSidebar() {
             <SidebarMenu>
               {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     isActive={location === item.url}
                     data-testid={`nav-${item.url.replace('/', '')}`}
                   >
-                    <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
+                    {item.external ? (
+                      <a href={item.url} target="_blank" rel="noopener noreferrer">
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </a>
+                    ) : (
+                      <Link href={item.url}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -132,11 +147,11 @@ export function AppSidebar() {
         {user && (
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
-              <Avatar 
+              <Avatar
                 className="h-10 w-10 border-2"
                 style={{ borderColor: user.colorCode }}
               >
-                <AvatarFallback 
+                <AvatarFallback
                   style={{ backgroundColor: `${user.colorCode}20`, color: user.colorCode }}
                 >
                   {getInitials(user.firstName, user.lastName)}

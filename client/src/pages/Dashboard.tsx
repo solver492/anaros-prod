@@ -1,5 +1,7 @@
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
+import { ActivityLogDialog } from '@/components/ActivityLogDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -8,7 +10,6 @@ import {
   TrendingUp,
   Calendar,
   CheckCircle,
-  XCircle,
   Crown,
   Trophy,
   Sparkles,
@@ -317,6 +318,10 @@ export default function Dashboard() {
   return (
     <Layout title="Tableau de bord">
       <div className="p-4 lg:p-6 space-y-6">
+        <div className="flex justify-end">
+          <ActivityLogDialog />
+        </div>
+
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <KPICard

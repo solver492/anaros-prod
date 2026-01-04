@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
+import { useLocation, useSearch } from "wouter";
 import {
   Plus,
   Search,
@@ -330,17 +331,17 @@ function ClientDetailsModal({
                         apt.status === 'completed'
                           ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
                           : apt.status === 'cancelled'
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          : ''
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            : ''
                       }
                     >
                       {apt.status === 'completed'
                         ? 'Terminé'
                         : apt.status === 'cancelled'
-                        ? 'Annulé'
-                        : apt.status === 'confirmed'
-                        ? 'Confirmé'
-                        : 'En attente'}
+                          ? 'Annulé'
+                          : apt.status === 'confirmed'
+                            ? 'Confirmé'
+                            : 'En attente'}
                     </Badge>
                   </div>
                 </div>
@@ -428,9 +429,24 @@ export default function Clients() {
   const [showDetails, setShowDetails] = useState(false);
   const { toast } = useToast();
 
+  const searchParams = useSearch();
+
   const { data: clients = [], isLoading } = useQuery<Client[]>({
     queryKey: ['/api/clients'],
   });
+
+  // Open client details if clientId query param is present
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    const clientId = params.get('clientId');
+    if (clientId && clients.length > 0 && !selectedClient) {
+      const client = clients.find(c => c.id === clientId);
+      if (client) {
+        setSelectedClient(client);
+        setShowDetails(true);
+      }
+    }
+  }, [searchParams, clients, selectedClient]);
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -581,7 +597,10 @@ export default function Clients() {
 
       <ClientDetailsModal
         open={showDetails}
-        onOpenChange={setShowDetails}
+        onOpenChange={(open) => {
+          setShowDetails(open);
+          // Optional: You might want to clear the URL param here if you want clean URLs
+        }}
         client={selectedClient}
       />
     </Layout>

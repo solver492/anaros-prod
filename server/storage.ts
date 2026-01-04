@@ -26,7 +26,7 @@ import type {
 export interface IStorage {
   // Auth
   authenticateUser(email: string, password: string): Promise<AuthUser | null>;
-  
+
   // Profiles
   getProfiles(): Promise<ProfileWithSkills[]>;
   getProfile(id: string): Promise<ProfileWithSkills | undefined>;
@@ -34,28 +34,28 @@ export interface IStorage {
   createProfile(profile: InsertProfile & { skills?: number[] }): Promise<Profile>;
   updateProfile(id: string, profile: Partial<InsertProfile> & { skills?: number[] }): Promise<Profile | undefined>;
   deleteProfile(id: string): Promise<boolean>;
-  
+
   // Service Categories
   getServiceCategories(): Promise<ServiceCategory[]>;
-  
+
   // Services
   getServices(): Promise<ServiceWithCategory[]>;
   getService(id: string): Promise<ServiceWithCategory | undefined>;
   createService(service: InsertService): Promise<Service>;
   updateService(id: string, service: Partial<InsertService>): Promise<Service | undefined>;
   deleteService(id: string): Promise<boolean>;
-  
+
   // Staff Skills
   getStaffSkills(): Promise<StaffSkill[]>;
   setStaffSkills(profileId: string, categoryIds: number[]): Promise<void>;
-  
+
   // Clients
   getClients(): Promise<Client[]>;
   getClient(id: string): Promise<Client | undefined>;
   createClient(client: InsertClient): Promise<Client>;
   updateClient(id: string, client: Partial<InsertClient>): Promise<Client | undefined>;
   deleteClient(id: string): Promise<boolean>;
-  
+
   // Appointments
   getAppointments(): Promise<AppointmentWithDetails[]>;
   getAppointmentsByStaff(staffId: string): Promise<AppointmentWithDetails[]>;
@@ -63,7 +63,7 @@ export interface IStorage {
   createAppointment(appointment: InsertAppointment): Promise<Appointment>;
   updateAppointmentStatus(id: string, status: string): Promise<Appointment | undefined>;
   deleteAppointment(id: string): Promise<boolean>;
-  
+
   // Dashboard
   getDashboardKPIs(): Promise<DashboardKPIs>;
   getTopEmployees(): Promise<TopEmployee[]>;
@@ -86,7 +86,7 @@ export class MemStorage implements IStorage {
     this.staffSkills = new Map();
     this.clients = new Map();
     this.appointments = new Map();
-    
+
     this.initializeData();
   }
 
@@ -162,30 +162,30 @@ export class MemStorage implements IStorage {
       colorCode: string;
       skills: number[];
     }> = [
-      // Admin
-      { firstName: "Admin", lastName: "Anaros", email: "admin@anaros.com", password: "admin123", role: "superadmin", colorCode: "#E8B4B8", skills: [] },
-      // Reception
-      { firstName: "Amina", lastName: "Réception", email: "amina@anaros.com", password: "amina123", role: "reception", colorCode: "#D4AF37", skills: [] },
-      // Onglerie staff
-      { firstName: "Dounia", lastName: "Onglerie", email: "dounia@anaros.com", password: "dounia123", role: "staff", colorCode: "#EC4899", skills: [1] },
-      { firstName: "Safa", lastName: "Onglerie", email: "safa@anaros.com", password: "safa123", role: "staff", colorCode: "#F472B6", skills: [1] },
-      { firstName: "Chahinez", lastName: "Onglerie", email: "chahinez@anaros.com", password: "chahinez123", role: "staff", colorCode: "#FB7185", skills: [1] },
-      // Massage
-      { firstName: "Samira", lastName: "Massage", email: "samira@anaros.com", password: "samira123", role: "staff", colorCode: "#8B5CF6", skills: [2] },
-      // Hammam
-      { firstName: "Marie", lastName: "Hammam", email: "marie@anaros.com", password: "marie123", role: "staff", colorCode: "#06B6D4", skills: [3] },
-      // Coiffure
-      { firstName: "Samira", lastName: "Samou", email: "samira.samou@anaros.com", password: "samira123", role: "staff", colorCode: "#3B82F6", skills: [4] },
-      { firstName: "Malika", lastName: "Coloration", email: "malika@anaros.com", password: "malika123", role: "staff", colorCode: "#6366F1", skills: [4] },
-      { firstName: "Kiki", lastName: "Soins", email: "kiki@anaros.com", password: "kiki123", role: "staff", colorCode: "#10B981", skills: [4] },
-      { firstName: "Houda", lastName: "Brushing", email: "houda@anaros.com", password: "houda123", role: "staff", colorCode: "#F59E0B", skills: [4] },
-      { firstName: "Karima", lastName: "Balayage", email: "karima@anaros.com", password: "karima123", role: "staff", colorCode: "#EF4444", skills: [4] },
-      // Maquillage
-      { firstName: "Sara", lastName: "Maquillage", email: "sara@anaros.com", password: "sara123", role: "staff", colorCode: "#A855F7", skills: [5] },
-      // Soins Visage & Épilation
-      { firstName: "Saliha", lastName: "Soins", email: "saliha@anaros.com", password: "saliha123", role: "staff", colorCode: "#14B8A6", skills: [6, 7] },
-      { firstName: "Amel", lastName: "Soins", email: "amel@anaros.com", password: "amel123", role: "staff", colorCode: "#84CC16", skills: [6, 7] },
-    ];
+        // Admin
+        { firstName: "Admin", lastName: "Anaros", email: "admin@anaros.com", password: "admin123", role: "superadmin", colorCode: "#E8B4B8", skills: [] },
+        // Reception
+        { firstName: "Amina", lastName: "Réception", email: "amina@anaros.com", password: "amina123", role: "reception", colorCode: "#D4AF37", skills: [] },
+        // Onglerie staff
+        { firstName: "Dounia", lastName: "Onglerie", email: "dounia@anaros.com", password: "dounia123", role: "staff", colorCode: "#EC4899", skills: [1] },
+        { firstName: "Safa", lastName: "Onglerie", email: "safa@anaros.com", password: "safa123", role: "staff", colorCode: "#F472B6", skills: [1] },
+        { firstName: "Chahinez", lastName: "Onglerie", email: "chahinez@anaros.com", password: "chahinez123", role: "staff", colorCode: "#FB7185", skills: [1] },
+        // Massage
+        { firstName: "Samira", lastName: "Massage", email: "samira@anaros.com", password: "samira123", role: "staff", colorCode: "#8B5CF6", skills: [2] },
+        // Hammam
+        { firstName: "Marie", lastName: "Hammam", email: "marie@anaros.com", password: "marie123", role: "staff", colorCode: "#06B6D4", skills: [3] },
+        // Coiffure
+        { firstName: "Samira", lastName: "Samou", email: "samira.samou@anaros.com", password: "samira123", role: "staff", colorCode: "#3B82F6", skills: [4] },
+        { firstName: "Malika", lastName: "Coloration", email: "malika@anaros.com", password: "malika123", role: "staff", colorCode: "#6366F1", skills: [4] },
+        { firstName: "Kiki", lastName: "Soins", email: "kiki@anaros.com", password: "kiki123", role: "staff", colorCode: "#10B981", skills: [4] },
+        { firstName: "Houda", lastName: "Brushing", email: "houda@anaros.com", password: "houda123", role: "staff", colorCode: "#F59E0B", skills: [4] },
+        { firstName: "Karima", lastName: "Balayage", email: "karima@anaros.com", password: "karima123", role: "staff", colorCode: "#EF4444", skills: [4] },
+        // Maquillage
+        { firstName: "Sara", lastName: "Maquillage", email: "sara@anaros.com", password: "sara123", role: "staff", colorCode: "#A855F7", skills: [5] },
+        // Soins Visage & Épilation
+        { firstName: "Saliha", lastName: "Soins", email: "saliha@anaros.com", password: "saliha123", role: "staff", colorCode: "#14B8A6", skills: [6, 7] },
+        { firstName: "Amel", lastName: "Soins", email: "amel@anaros.com", password: "amel123", role: "staff", colorCode: "#84CC16", skills: [6, 7] },
+      ];
 
     staffData.forEach((s) => {
       const id = randomUUID();
@@ -275,7 +275,7 @@ export class MemStorage implements IStorage {
     const profile = Array.from(this.profiles.values()).find(
       p => p.email.toLowerCase() === email.toLowerCase() && p.password === password
     );
-    
+
     if (!profile) return null;
 
     return {
@@ -333,11 +333,11 @@ export class MemStorage implements IStorage {
     const { skills, ...updates } = data;
     const updated = { ...profile, ...updates };
     this.profiles.set(id, updated);
-    
+
     if (skills !== undefined) {
       this.staffSkills.set(id, skills);
     }
-    
+
     return updated;
   }
 
@@ -475,7 +475,8 @@ export class MemStorage implements IStorage {
     const appointment: Appointment = {
       ...data,
       id,
-      status: data.status || 'pending',
+      id,
+      status: (data.status || 'pending') as any, // Cast to any to avoid type issues with string vs AppointmentStatus
       createdAt: new Date(),
     };
     this.appointments.set(id, appointment);
@@ -498,12 +499,12 @@ export class MemStorage implements IStorage {
   async getDashboardKPIs(): Promise<DashboardKPIs> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const startOfYear = new Date(today.getFullYear(), 0, 1);
-    
+
     const appointments = Array.from(this.appointments.values());
-    
+
     let revenueToday = 0;
     let revenueMonth = 0;
     let revenueYear = 0;
@@ -515,14 +516,14 @@ export class MemStorage implements IStorage {
       const aptDate = new Date(apt.startTime);
       const service = this.services.get(apt.serviceId);
       const price = service?.price || 0;
-      
+
       const isToday = aptDate >= today && aptDate < new Date(today.getTime() + 24 * 60 * 60 * 1000);
       const isThisMonth = aptDate >= startOfMonth;
       const isThisYear = aptDate >= startOfYear;
 
       // Count completed appointments only for today
       if (isToday && apt.status === 'completed') appointmentsToday++;
-      
+
       if (apt.status === 'completed') {
         appointmentsCompleted++;
         if (isToday) revenueToday += price;
@@ -545,19 +546,19 @@ export class MemStorage implements IStorage {
   async getTopEmployees(): Promise<TopEmployee[]> {
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    
+
     const appointments = Array.from(this.appointments.values())
-      .filter(apt => 
-        apt.status === 'completed' && 
+      .filter(apt =>
+        apt.status === 'completed' &&
         new Date(apt.startTime) >= startOfMonth
       );
-    
+
     const employeeStats = new Map<string, { revenue: number; count: number }>();
-    
+
     appointments.forEach(apt => {
       const service = this.services.get(apt.serviceId);
       const price = service?.price || 0;
-      
+
       const current = employeeStats.get(apt.staffId) || { revenue: 0, count: 0 };
       employeeStats.set(apt.staffId, {
         revenue: current.revenue + price,
@@ -566,7 +567,7 @@ export class MemStorage implements IStorage {
     });
 
     const results: TopEmployee[] = [];
-    
+
     employeeStats.forEach((stats, staffId) => {
       const profile = this.profiles.get(staffId);
       if (profile) {
@@ -586,19 +587,19 @@ export class MemStorage implements IStorage {
   async getTopServices(): Promise<TopService[]> {
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    
+
     const appointments = Array.from(this.appointments.values())
-      .filter(apt => 
-        apt.status === 'completed' && 
+      .filter(apt =>
+        apt.status === 'completed' &&
         new Date(apt.startTime) >= startOfMonth
       );
-    
+
     const serviceStats = new Map<string, { count: number; revenue: number }>();
-    
+
     appointments.forEach(apt => {
       const service = this.services.get(apt.serviceId);
       if (!service) return;
-      
+
       const current = serviceStats.get(apt.serviceId) || { count: 0, revenue: 0 };
       serviceStats.set(apt.serviceId, {
         count: current.count + 1,
@@ -607,11 +608,11 @@ export class MemStorage implements IStorage {
     });
 
     const results: TopService[] = [];
-    
+
     serviceStats.forEach((stats, serviceId) => {
       const service = this.services.get(serviceId);
       const category = service ? this.serviceCategories.get(service.categoryId) : undefined;
-      
+
       if (service && category) {
         results.push({
           id: serviceId,
@@ -630,19 +631,19 @@ export class MemStorage implements IStorage {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    
+
     const appointments = Array.from(this.appointments.values())
-      .filter(apt => 
-        apt.status === 'completed' && 
+      .filter(apt =>
+        apt.status === 'completed' &&
         new Date(apt.startTime) >= startOfMonth
       );
-    
+
     const clientStats = new Map<string, { totalSpent: number; count: number }>();
-    
+
     appointments.forEach(apt => {
       const service = this.services.get(apt.serviceId);
       const price = service?.price || 0;
-      
+
       const current = clientStats.get(apt.clientId) || { totalSpent: 0, count: 0 };
       clientStats.set(apt.clientId, {
         totalSpent: current.totalSpent + price,
@@ -651,12 +652,12 @@ export class MemStorage implements IStorage {
     });
 
     let topClient: { clientId: string; stats: { totalSpent: number; count: number } } | null = null;
-    
-    clientStats.forEach((stats, clientId) => {
+
+    for (const [clientId, stats] of clientStats.entries()) {
       if (!topClient || stats.totalSpent > topClient.stats.totalSpent) {
         topClient = { clientId, stats };
       }
-    });
+    }
 
     if (!topClient) return null;
 
