@@ -2,6 +2,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 const httpServer = createServer(app);
@@ -70,14 +72,19 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (process.env.NODE_ENV === "production") {
+  // Détection robuste du mode production pour Hostinger
+  const isProduction = process.env.NODE_ENV === "production" || fs.existsSync(path.resolve(process.cwd(), "dist", "public"));
+
+  if (isProduction) {
     serveStatic(app);
   } else {
-    const { setupVite } = await import("./vite");
-    await setupVite(httpServer, app);
+    try {
+      const { setupVite } = await import("./vite");
+      await setupVite(httpServer, app);
+    } catch (e) {
+      console.warn("Vite setup failed, falling back to static (normal in production):", e);
+      serveStatic(app);
+    }
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
