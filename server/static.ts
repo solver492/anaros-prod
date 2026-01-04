@@ -3,21 +3,41 @@ import fs from "fs";
 import path from "path";
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(process.cwd(), "dist", "public");
+  // On essaie plusieurs chemins pour être sûr de trouver le build
+  const possiblePaths = [
+    path.resolve(process.cwd(), "dist", "public"),
+    path.resolve(import.meta.dirname, "public"),
+    path.resolve(import.meta.dirname, "..", "dist", "public"),
+  ];
+
+  let distPath = possiblePaths[0];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(path.resolve(p, "index.html"))) {
+      distPath = p;
+      break;
+    }
+  }
 
   console.log(`[static] Serving files from: ${distPath}`);
 
-  if (!fs.existsSync(distPath)) {
-    console.error(`[static] ERROR: Directory not found: ${distPath}`);
-    // fallback to client dir if dist/public is missing (useful for some environments)
-    const fallbackPath = path.resolve(process.cwd(), "client");
-    console.log(`[static] Attempting fallback to: ${fallbackPath}`);
+  if (!fs.existsSync(distPath) || !fs.existsSync(path.resolve(distPath, "index.html"))) {
+    console.error(`[static] FATAL: Build directory or index.html not found!`);
   }
 
-  app.use(express.static(distPath));
+  app.use(express.static(distPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      }
+    }
+  }));
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  app.use("*", (req, res) => {
+    const indexPath = path.resolve(distPath, "index.html");
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).send(`Application non compilée. Veuillez cliquer sur 'Déployer' dans Hostinger. (Path: ${distPath})`);
+    }
   });
 }
