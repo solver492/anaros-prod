@@ -11,17 +11,21 @@ export function serveStatic(app: Express) {
   ];
 
   let distPath = possiblePaths[0];
+  console.log("[static] Checking for build directory...");
   for (const p of possiblePaths) {
-    if (fs.existsSync(path.resolve(p, "index.html"))) {
+    const checkPath = path.resolve(p, "index.html");
+    const exists = fs.existsSync(checkPath);
+    console.log(`[static] Checking: ${checkPath} -> ${exists ? "FOUND" : "NOT FOUND"}`);
+    if (exists) {
       distPath = p;
       break;
     }
   }
 
-  console.log(`[static] Serving files from: ${distPath}`);
+  console.log(`[static] Final distPath selected: ${distPath}`);
 
   if (!fs.existsSync(distPath) || !fs.existsSync(path.resolve(distPath, "index.html"))) {
-    console.error(`[static] FATAL: Build directory or index.html not found!`);
+    console.error(`[static] FATAL: No valid build directory found with index.html!`);
   }
 
   app.use(express.static(distPath, {
