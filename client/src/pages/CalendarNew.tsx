@@ -80,6 +80,41 @@ function AppointmentModal({
     enabled: open,
   });
 
+  // Reset modal when it opens/closes
+  useEffect(() => {
+    if (open) {
+      setStep(1);
+      setClientSearch('');
+      setSelectedClient('');
+      setSelectedService('');
+
+      if (selectedSlot) {
+        // Use local date/time instead of ISO to avoid timezone shifts
+        const year = selectedSlot.start.getFullYear();
+        const month = String(selectedSlot.start.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedSlot.start.getDate()).padStart(2, '0');
+        const hours = String(selectedSlot.start.getHours()).padStart(2, '0');
+        const minutes = String(selectedSlot.start.getMinutes()).padStart(2, '0');
+
+        setAppointmentDate(`${year}-${month}-${day}`);
+        setAppointmentTime(`${hours}:${minutes}`);
+
+        if (selectedSlot.staffId) {
+          setSelectedStaff(selectedSlot.staffId);
+        }
+      } else {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        setAppointmentDate(`${year}-${month}-${day}`);
+        setAppointmentTime('09:00');
+      }
+    } else {
+      setSelectedStaff('');
+    }
+  }, [open, selectedSlot]);
+
   const createAppointment = useMutation({
     mutationFn: async (data: InsertAppointment) => {
       const res = await apiRequest('POST', '/api/appointments', data);
@@ -106,7 +141,17 @@ function AppointmentModal({
       return;
     }
 
-    const startDateTime = new Date(`${appointmentDate}T${appointmentTime}`);
+    const [year, month, day] = appointmentDate.split('-').map(Number);
+    const [hours, minutes] = appointmentTime.split(':').map(Number);
+
+    // Create Date object in local time
+    const startDateTime = new Date(year, month - 1, day, hours, minutes);
+
+    if (isNaN(startDateTime.getTime())) {
+      toast({ title: 'Erreur', description: 'Date ou heure invalide', variant: 'destructive' });
+      return;
+    }
+
     const service = services.find(s => s.id === selectedService);
     const endDateTime = new Date(startDateTime.getTime() + (service?.duration || 60) * 60000);
 
@@ -476,7 +521,7 @@ export default function CalendarPage() {
     if (user?.role === 'staff' && user?.id) {
       return new Set([user.id]);
     }
-    
+
     // Si l'utilisateur est admin/superadmin/reception, afficher tous les RDV
     if (selectedStaffIds.size === 0) {
       return new Set(staff.map(s => s.id));
@@ -561,80 +606,78 @@ export default function CalendarPage() {
             </p>
             {/* Staff Dropdown - Only for admin/superadmin/reception */}
             {user?.role !== 'staff' && (
-            <div className="relative inline-block">
-              <Button
-                onClick={() => setShowStaffDropdown(!showStaffDropdown)}
-                variant="outline"
-                className="gap-2"
-              >
-                <User className="h-4 w-4" />
-                Liste des employé(e)s
-                <ChevronDown className={`h-4 w-4 transition-transform ${showStaffDropdown ? 'rotate-180' : ''}`} />
-              </Button>
+              <div className="relative inline-block">
+                <Button
+                  onClick={() => setShowStaffDropdown(!showStaffDropdown)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <User className="h-4 w-4" />
+                  Liste des employé(e)s
+                  <ChevronDown className={`h-4 w-4 transition-transform ${showStaffDropdown ? 'rotate-180' : ''}`} />
+                </Button>
 
-              {/* Dropdown Menu */}
-              {showStaffDropdown && (
-                <div className="absolute top-full left-0 mt-2 bg-background border border-border rounded-lg shadow-lg z-50 min-w-64">
-                  {/* Search Input */}
-                  <div className="p-3 border-b border-border">
-                    <Input
-                      placeholder="Rechercher un(e) employé(e)..."
-                      value={searchStaff}
-                      onChange={(e) => setSearchStaff(e.target.value)}
-                      className="h-8"
-                      autoFocus
-                    />
-                  </div>
+                {/* Dropdown Menu */}
+                {showStaffDropdown && (
+                  <div className="absolute top-full left-0 mt-2 bg-background border border-border rounded-lg shadow-lg z-50 min-w-64">
+                    {/* Search Input */}
+                    <div className="p-3 border-b border-border">
+                      <Input
+                        placeholder="Rechercher un(e) employé(e)..."
+                        value={searchStaff}
+                        onChange={(e) => setSearchStaff(e.target.value)}
+                        className="h-8"
+                        autoFocus
+                      />
+                    </div>
 
-                  {/* Select All Button */}
-                  <div className="p-2 border-b border-border">
-                    <Button
-                      variant={filteredStaff.every(s => activeStaffIds.has(s.id)) ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={toggleAllStaff}
-                      className="w-full font-medium"
-                    >
-                      {filteredStaff.every(s => activeStaffIds.has(s.id)) ? 'Désélectionner tout' : 'Sélectionner tout'}
-                    </Button>
-                  </div>
+                    {/* Select All Button */}
+                    <div className="p-2 border-b border-border">
+                      <Button
+                        variant={filteredStaff.every(s => activeStaffIds.has(s.id)) ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={toggleAllStaff}
+                        className="w-full font-medium"
+                      >
+                        {filteredStaff.every(s => activeStaffIds.has(s.id)) ? 'Désélectionner tout' : 'Sélectionner tout'}
+                      </Button>
+                    </div>
 
-                  {/* Staff List */}
-                  <div className="max-h-64 overflow-y-auto">
-                    {filteredStaff.length === 0 ? (
-                      <div className="p-4 text-center text-muted-foreground text-sm">
-                        Aucun(e) employé(e) trouvé(e)
-                      </div>
-                    ) : (
-                      filteredStaff.map((s) => {
-                        const isSelected = activeStaffIds.has(s.id);
-                        return (
-                          <button
-                            key={s.id}
-                            onClick={() => toggleStaff(s.id)}
-                            className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all hover:bg-muted ${
-                              isSelected ? 'bg-primary/10' : ''
-                            }`}
-                          >
-                            <div
-                              className="w-3 h-3 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: s.colorCode || '#3B82F6' }}
-                            />
-                            <span className={`text-sm font-medium flex-1 text-left ${
-                              isSelected ? 'text-primary font-semibold' : 'text-foreground'
-                            }`}>
-                              {s.firstName} {s.lastName}
-                            </span>
-                            {isSelected && (
-                              <Check className="h-4 w-4 text-primary" />
-                            )}
-                          </button>
-                        );
-                      })
-                    )}
+                    {/* Staff List */}
+                    <div className="max-h-64 overflow-y-auto">
+                      {filteredStaff.length === 0 ? (
+                        <div className="p-4 text-center text-muted-foreground text-sm">
+                          Aucun(e) employé(e) trouvé(e)
+                        </div>
+                      ) : (
+                        filteredStaff.map((s) => {
+                          const isSelected = activeStaffIds.has(s.id);
+                          return (
+                            <button
+                              key={s.id}
+                              onClick={() => toggleStaff(s.id)}
+                              className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all hover:bg-muted ${isSelected ? 'bg-primary/10' : ''
+                                }`}
+                            >
+                              <div
+                                className="w-3 h-3 rounded-full flex-shrink-0"
+                                style={{ backgroundColor: s.colorCode || '#3B82F6' }}
+                              />
+                              <span className={`text-sm font-medium flex-1 text-left ${isSelected ? 'text-primary font-semibold' : 'text-foreground'
+                                }`}>
+                                {s.firstName} {s.lastName}
+                              </span>
+                              {isSelected && (
+                                <Check className="h-4 w-4 text-primary" />
+                              )}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             )}
           </div>
           <Button onClick={() => setShowNewAppointment(true)}>

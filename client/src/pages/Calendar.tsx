@@ -90,10 +90,14 @@ function AppointmentModal({
   // Initialize date when slot is selected
   useEffect(() => {
     if (selectedSlot?.start) {
-      const date = selectedSlot.start.toISOString().split('T')[0];
-      const time = selectedSlot.start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', ':');
-      setAppointmentDate(date);
-      setAppointmentTime(selectedSlot.start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+      const year = selectedSlot.start.getFullYear();
+      const month = String(selectedSlot.start.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedSlot.start.getDate()).padStart(2, '0');
+      const hours = String(selectedSlot.start.getHours()).padStart(2, '0');
+      const minutes = String(selectedSlot.start.getMinutes()).padStart(2, '0');
+
+      setAppointmentDate(`${year}-${month}-${day}`);
+      setAppointmentTime(`${hours}:${minutes}`);
     }
   }, [selectedSlot?.start]);
 
@@ -120,15 +124,15 @@ function AppointmentModal({
   );
 
   const selectedServiceData = services.find((s) => s.id === selectedService);
-  
+
   // Filter staff by skills for the selected service
   const availableStaff = selectedServiceData
     ? staff.filter((s) => {
-        const hasSkill = staffSkills.some(
-          (skill) => skill.profileId === s.id && skill.categoryId === selectedServiceData.categoryId
-        );
-        return hasSkill || s.role === 'admin' || s.role === 'superadmin';
-      })
+      const hasSkill = staffSkills.some(
+        (skill) => skill.profileId === s.id && skill.categoryId === selectedServiceData.categoryId
+      );
+      return hasSkill || s.role === 'admin' || s.role === 'superadmin';
+    })
     : staff;
 
   const handleSubmit = () => {
@@ -141,7 +145,7 @@ function AppointmentModal({
     const [hours, minutes] = appointmentTime.split(':').map(Number);
     const startTime = new Date(appointmentDate);
     startTime.setHours(hours, minutes, 0);
-    
+
     const endTime = new Date(startTime.getTime() + service.duration * 60000);
 
     createAppointment.mutate({
@@ -182,19 +186,17 @@ function AppointmentModal({
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center flex-1">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step >= s
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= s
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground'
-                }`}
+                  }`}
               >
                 {s}
               </div>
               {s < 4 && (
                 <div
-                  className={`flex-1 h-1 mx-2 rounded ${
-                    step > s ? 'bg-primary' : 'bg-muted'
-                  }`}
+                  className={`flex-1 h-1 mx-2 rounded ${step > s ? 'bg-primary' : 'bg-muted'
+                    }`}
                 />
               )}
             </div>
@@ -246,11 +248,10 @@ function AppointmentModal({
                 filteredClients.slice(0, 10).map((client) => (
                   <div
                     key={client.id}
-                    className={`p-3 rounded-lg border cursor-pointer hover-elevate ${
-                      selectedClient === client.id
+                    className={`p-3 rounded-lg border cursor-pointer hover-elevate ${selectedClient === client.id
                         ? 'border-primary bg-primary/5'
                         : 'border-border'
-                    }`}
+                      }`}
                     onClick={() => setSelectedClient(client.id)}
                     data-testid={`client-option-${client.id}`}
                   >
@@ -286,11 +287,10 @@ function AppointmentModal({
               {services.map((service) => (
                 <div
                   key={service.id}
-                  className={`p-3 rounded-lg border cursor-pointer hover-elevate ${
-                    selectedService === service.id
+                  className={`p-3 rounded-lg border cursor-pointer hover-elevate ${selectedService === service.id
                       ? 'border-primary bg-primary/5'
                       : 'border-border'
-                  }`}
+                    }`}
                   onClick={() => setSelectedService(service.id)}
                   data-testid={`service-option-${service.id}`}
                 >
@@ -337,11 +337,10 @@ function AppointmentModal({
                 availableStaff.map((member) => (
                   <div
                     key={member.id}
-                    className={`p-3 rounded-lg border cursor-pointer hover-elevate ${
-                      selectedStaff === member.id
+                    className={`p-3 rounded-lg border cursor-pointer hover-elevate ${selectedStaff === member.id
                         ? 'border-primary bg-primary/5'
                         : 'border-border'
-                    }`}
+                      }`}
                     onClick={() => setSelectedStaff(member.id)}
                     data-testid={`staff-option-${member.id}`}
                   >
@@ -409,8 +408,8 @@ function AppointmentModal({
             <Button
               onClick={() => setStep(step + 1)}
               disabled={
-                (step === 1 && (!appointmentDate || !appointmentTime)) || 
-                (step === 2 && !selectedClient) || 
+                (step === 1 && (!appointmentDate || !appointmentTime)) ||
+                (step === 2 && !selectedClient) ||
                 (step === 3 && !selectedService)
               }
               data-testid="button-next-step"
